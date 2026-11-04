@@ -18,11 +18,13 @@
   /* In a browser tab the game simply fills the window. */
   #frame { position:fixed; inset:0; }
   /* From the home screen: Werewolf already leaves room for the Dynamic Island and
-     home bar itself, so the launcher only adds the extra gap that clears the blur,
-     and reaches a little below the screen because Google's page inside comes up
-     about 56 points short at the bottom. */
-  :root { --gap-top:52px; --fix-bottom:56px; }
-  .home-screen #frame { top:var(--gap-top); bottom:calc(-1 * var(--fix-bottom)); }
+     home bar itself, so the launcher only adds the gap that clears the blur.
+     iOS reports a home-screen page as one status bar shorter than the screen,
+     so the real screen height is set from the script below. */
+  :root { --gap-top:52px; }
+  .home-screen, .home-screen body { height:var(--screen-h); }
+  .home-screen #frame { position:absolute; inset:auto 0 auto 0; top:var(--gap-top);
+                        height:calc(var(--screen-h) - var(--gap-top)); }
   #app { display:block; width:100%; height:100%; border:0; background:#101014; }
   #splash { position:fixed; inset:0; z-index:2; background:#101014; display:grid; place-items:center;
             transition:opacity .45s ease; }
@@ -41,6 +43,13 @@
 <script>
   // Opened from the home screen (not a browser tab)
   if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) {
+    var fit = function () {
+      var h = Math.max(window.innerHeight, Math.max(screen.width, screen.height));
+      if (window.innerWidth > window.innerHeight) h = window.innerHeight;   // turned sideways
+      document.documentElement.style.setProperty('--screen-h', h + 'px');
+    };
+    fit();
+    window.addEventListener('resize', fit);
     document.documentElement.classList.add('home-screen');
   }
   // Hide the splash once the app has loaded (with a little time for the game itself to draw)
