@@ -15,11 +15,14 @@
 <link rel="manifest" href="werewolf.webmanifest">
 <style>
   html, body { margin:0; height:100%; background:#101014; overflow:hidden; overscroll-behavior:none; }
-  /* extra breathing room below the Dynamic Island / notch, clear of the blur */
-  :root { --gap-top:52px; --safe-top:env(safe-area-inset-top, 0px); --safe-bottom:env(safe-area-inset-bottom, 0px); }
-  /* The game sits between the blur under the Dynamic Island and the home bar */
-  #frame { position:fixed; top:calc(var(--safe-top) + var(--gap-top)); bottom:var(--safe-bottom);
-           left:env(safe-area-inset-left, 0px); right:env(safe-area-inset-right, 0px); }
+  /* In a browser tab the game simply fills the window. */
+  #frame { position:fixed; inset:0; }
+  /* From the home screen: Werewolf already leaves room for the Dynamic Island and
+     home bar itself, so the launcher only adds the extra gap that clears the blur,
+     and reaches a little below the screen because Google's page inside comes up
+     about 56 points short at the bottom. */
+  :root { --gap-top:52px; --fix-bottom:56px; }
+  .home-screen #frame { top:var(--gap-top); bottom:calc(-1 * var(--fix-bottom)); }
   #app { display:block; width:100%; height:100%; border:0; background:#101014; }
   #splash { position:fixed; inset:0; z-index:2; background:#101014; display:grid; place-items:center;
             transition:opacity .45s ease; }
@@ -36,16 +39,10 @@
 <div id="splash" aria-hidden="true"><div><img src="werewolf-180.png" alt=""><b>Werewolf</b><i></i></div></div>
 <div id="frame"><iframe id="app" title="Werewolf" src="https://script.google.com/macros/s/AKfycbwr3feFax8KSciRMv8Mjlf2PHZSUQcDLz1jsfTPlhw7m_W9Z8eBZujw5Y3HisxrtLXh/exec" allow="autoplay; fullscreen; clipboard-read; clipboard-write; screen-wake-lock"></iframe></div>
 <script>
-  (function () {
-    var probe = document.createElement('div');
-    probe.style.cssText = 'position:fixed;top:0;height:0;padding-top:env(safe-area-inset-top, 0px);visibility:hidden';
-    document.body.appendChild(probe);
-    var top = parseFloat(getComputedStyle(probe).paddingTop) || 0;
-    probe.remove();
-    if (!top && (navigator.standalone || matchMedia('(display-mode: standalone)').matches)) {
-      document.documentElement.style.setProperty('--safe-top', '54px');
-    }
-  })();
+  // Opened from the home screen (not a browser tab)
+  if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) {
+    document.documentElement.classList.add('home-screen');
+  }
   // Hide the splash once the app has loaded (with a little time for the game itself to draw)
   var splash = document.getElementById('splash');
   function hide() { splash.classList.add('gone'); }
