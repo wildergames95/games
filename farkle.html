@@ -15,15 +15,14 @@
 <link rel="manifest" href="farkle.webmanifest">
 <style>
   /* extra breathing room below the Dynamic Island / notch */
-  :root { --gap-top:28px; }
+  :root { --gap-top:28px; --safe-top:env(safe-area-inset-top, 0px); --safe-bottom:env(safe-area-inset-bottom, 0px); }
   html, body { margin:0; height:100%; background:#14321f; overflow:hidden; overscroll-behavior:none; }
-  /* The app sits inside the safe area; the green (or night) background fills
-     the status-bar strip at the top and the home-bar strip at the bottom. */
-  #app { position:fixed; border:0; display:block; background:#14321f;
-         top:calc(env(safe-area-inset-top, 0px) + var(--gap-top)); bottom:env(safe-area-inset-bottom, 0px);
-         left:env(safe-area-inset-left, 0px); right:env(safe-area-inset-right, 0px);
-         width:calc(100% - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
-         height:calc(100% - env(safe-area-inset-top, 0px) - var(--gap-top) - env(safe-area-inset-bottom, 0px)); }
+  /* The game sits in a frame that starts below the status bar / Dynamic Island
+     (plus a little extra room) and ends above the home bar. The frame is placed by
+     its four edges, and the game fills it, so moving the top moves everything down. */
+  #frame { position:fixed; top:calc(var(--safe-top) + var(--gap-top)); bottom:var(--safe-bottom);
+           left:env(safe-area-inset-left, 0px); right:env(safe-area-inset-right, 0px); }
+  #app { display:block; width:100%; height:100%; border:0; background:#14321f; }
   #splash { position:fixed; inset:0; z-index:2; background:#14321f; display:grid; place-items:center;
             transition:opacity .45s ease; }
   #splash.gone { opacity:0; pointer-events:none; }
@@ -37,8 +36,18 @@
 </head>
 <body>
 <div id="splash" aria-hidden="true"><div><img src="farkle-180.png" alt=""><b>Farkle</b><i></i></div></div>
-<iframe id="app" title="Farkle" src="https://script.google.com/macros/s/AKfycbwip9kvb8sdR19jY3YjDpyJ-8iGrBqTwFytQLNxv4exG_AwUrT-2W_odNs0Qy7wwsf8dQ/exec" allow="autoplay; fullscreen; clipboard-read; clipboard-write; screen-wake-lock"></iframe>
+<div id="frame"><iframe id="app" title="Farkle" src="https://script.google.com/macros/s/AKfycbwip9kvb8sdR19jY3YjDpyJ-8iGrBqTwFytQLNxv4exG_AwUrT-2W_odNs0Qy7wwsf8dQ/exec" allow="autoplay; fullscreen; clipboard-read; clipboard-write; screen-wake-lock"></iframe></div>
 <script>
+  (function () {
+    var probe = document.createElement('div');
+    probe.style.cssText = 'position:fixed;top:0;height:0;padding-top:env(safe-area-inset-top, 0px);visibility:hidden';
+    document.body.appendChild(probe);
+    var top = parseFloat(getComputedStyle(probe).paddingTop) || 0;
+    probe.remove();
+    if (!top && (navigator.standalone || matchMedia('(display-mode: standalone)').matches)) {
+      document.documentElement.style.setProperty('--safe-top', '54px');
+    }
+  })();
   // Hide the splash once the app has loaded (with a little time for the game itself to draw)
   var splash = document.getElementById('splash');
   function hide() { splash.classList.add('gone'); }
