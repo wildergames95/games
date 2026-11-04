@@ -1,0 +1,21 @@
+{
+  "name": "Werewolf",
+  "short_name": "Werewolf",
+  "start_url": "werewolf.html",
+  "scope": "werewolf.html",
+  "display": "standalone",
+  "background_color": "#101014",
+  "theme_color": "#101014",
+  "icons": [
+    {
+      "src": "werewolf-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "werewolf-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

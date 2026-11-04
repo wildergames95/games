@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Spinner</title>
+<!-- Home-screen launcher for the Spinner web app: full screen, app icon, edges painted to match -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Spinner">
+<meta name="theme-color" content="#14321f">
+<link rel="apple-touch-icon" href="spinner-180.png">
+<link rel="icon" type="image/png" href="spinner-192.png">
+<link rel="manifest" href="spinner.webmanifest">
+<style>
+  html, body { margin:0; height:100%; background:#14321f; overflow:hidden; overscroll-behavior:none; }
+  /* The app sits inside the safe area; the green (or night) background fills
+     the status-bar strip at the top and the home-bar strip at the bottom. */
+  #app { position:fixed; border:0; display:block; background:#14321f;
+         top:env(safe-area-inset-top, 0px); bottom:env(safe-area-inset-bottom, 0px);
+         left:env(safe-area-inset-left, 0px); right:env(safe-area-inset-right, 0px);
+         width:calc(100% - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+         height:calc(100% - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+  #splash { position:fixed; inset:0; z-index:2; background:#14321f; display:grid; place-items:center;
+            transition:opacity .45s ease; }
+  #splash.gone { opacity:0; pointer-events:none; }
+  #splash div { display:grid; justify-items:center; gap:14px; }
+  #splash img { width:96px; height:96px; border-radius:22px; }
+  #splash b { font:800 22px system-ui, -apple-system, sans-serif; letter-spacing:.14em; color:#fbf8ef; text-transform:uppercase; }
+  #splash i { width:34px; height:3px; border-radius:2px; background:#c8102e; animation:pulse 1.1s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity:.25; transform:scaleX(.6); } 50% { opacity:1; transform:scaleX(1); } }
+  @media (prefers-reduced-motion: reduce) { #splash i { animation:none; } }
+</style>
+</head>
+<body>
+<div id="splash" aria-hidden="true"><div><img src="spinner-180.png" alt=""><b>Spinner</b><i></i></div></div>
+<iframe id="app" title="Spinner" src="https://script.google.com/macros/s/AKfycbxFqlNE4WQmywDukP5_y8B2J9xU5qeLnev5v_Rbbas6dvYOxp0cz9IcRzFYE76SIpI7/exec" allow="autoplay; fullscreen; clipboard-read; clipboard-write; screen-wake-lock"></iframe>
+<script>
+  // Hide the splash once the app has loaded (with a little time for the game itself to draw)
+  var splash = document.getElementById('splash');
+  function hide() { splash.classList.add('gone'); }
+  document.getElementById('app').addEventListener('load', function () { setTimeout(hide, 1500); });
+  setTimeout(hide, 8000);   // never leave the splash up for good
+</script>
+</body>
+</html>
