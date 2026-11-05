@@ -41,6 +41,21 @@
 <div id="splash" aria-hidden="true"><div><img src="werewolf-180.png" alt=""><b>Werewolf</b><i></i></div></div>
 <div id="frame"><iframe id="app" title="Werewolf" src="https://script.google.com/macros/s/AKfycbwr3feFax8KSciRMv8Mjlf2PHZSUQcDLz1jsfTPlhw7m_W9Z8eBZujw5Y3HisxrtLXh/exec" allow="autoplay; fullscreen; clipboard-read; clipboard-write; screen-wake-lock"></iframe></div>
 <script>
+  // When the keyboard opens, iOS slides the whole page up to show the box being typed in.
+  // A page stuck partway up makes taps land in the wrong spot, so put it back once the
+  // keyboard is gone.
+  (function () {
+    function unscroll() { if (window.scrollY || window.scrollX) window.scrollTo(0, 0); }
+    if (window.visualViewport) {
+      visualViewport.addEventListener('resize', function () {
+        if (visualViewport.height >= window.innerHeight - 1) setTimeout(unscroll, 50);
+      });
+    }
+    window.addEventListener('scroll', function () {
+      if (!window.visualViewport || visualViewport.height >= window.innerHeight - 1) unscroll();
+    });
+  })();
+
   // Opened from the home screen (not a browser tab)
   if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) {
     var fit = function () {

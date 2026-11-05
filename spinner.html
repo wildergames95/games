@@ -20,7 +20,7 @@
   /* The game sits in a frame that starts below the status bar / Dynamic Island
      (plus a little extra room) and ends above the home bar. The frame is placed by
      its four edges, and the game fills it, so moving the top moves everything down. */
-  #frame { position:fixed; top:calc(var(--safe-top) + var(--gap-top)); bottom:var(--safe-bottom);
+  #frame { position:absolute; top:calc(var(--safe-top) + var(--gap-top)); bottom:var(--safe-bottom);
            left:env(safe-area-inset-left, 0px); right:env(safe-area-inset-right, 0px); }
   #app { display:block; width:100%; height:100%; border:0; background:#14321f; }
   #splash { position:fixed; inset:0; z-index:2; background:#14321f; display:grid; place-items:center;
@@ -38,6 +38,21 @@
 <div id="splash" aria-hidden="true"><div><img src="spinner-180.png" alt=""><b>Spinner</b><i></i></div></div>
 <div id="frame"><iframe id="app" title="Spinner" src="https://script.google.com/macros/s/AKfycbxFqlNE4WQmywDukP5_y8B2J9xU5qeLnev5v_Rbbas6dvYOxp0cz9IcRzFYE76SIpI7/exec" allow="autoplay; fullscreen; clipboard-read; clipboard-write; screen-wake-lock"></iframe></div>
 <script>
+  // When the keyboard opens, iOS slides the whole page up to show the box being typed in.
+  // A page stuck partway up makes taps land in the wrong spot, so put it back once the
+  // keyboard is gone.
+  (function () {
+    function unscroll() { if (window.scrollY || window.scrollX) window.scrollTo(0, 0); }
+    if (window.visualViewport) {
+      visualViewport.addEventListener('resize', function () {
+        if (visualViewport.height >= window.innerHeight - 1) setTimeout(unscroll, 50);
+      });
+    }
+    window.addEventListener('scroll', function () {
+      if (!window.visualViewport || visualViewport.height >= window.innerHeight - 1) unscroll();
+    });
+  })();
+
   (function () {
     var probe = document.createElement('div');
     probe.style.cssText = 'position:fixed;top:0;height:0;padding-top:env(safe-area-inset-top, 0px);visibility:hidden';
