@@ -63,6 +63,25 @@
       document.documentElement.style.setProperty('--safe-top', '54px');
     }
   })();
+  // Keeps a backup of what the game remembers on this phone (like which rooms it hosts),
+  // because iOS can wipe the game's own copy when the home-screen app closes.
+  window.addEventListener('message', function (e) {
+    var m = e.data, host = '';
+    try { host = new URL(e.origin).hostname; } catch (err) {}
+    if (!m || !m.gnStore || typeof m.app !== 'string' || !/(^|\.)googleusercontent\.com$/.test(host)) return;
+    if (m.gnStore === 'save' && typeof m.key === 'string' && m.key.indexOf(m.app) === 0) {
+      try { localStorage.setItem('gn:' + m.key, m.value); } catch (err) {}
+    } else if (m.gnStore === 'load') {
+      var data = {};
+      try {
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k.indexOf('gn:' + m.app) === 0) data[k.slice(3)] = localStorage.getItem(k);
+        }
+      } catch (err) {}
+      e.source.postMessage({ gnStore: 'data', app: m.app, data: data }, e.origin);
+    }
+  });
   // Hide the splash once the app has loaded (with a little time for the game itself to draw)
   var splash = document.getElementById('splash');
   function hide() { splash.classList.add('gone'); }
